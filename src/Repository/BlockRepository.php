@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Query\Expr;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -93,6 +94,37 @@ class BlockRepository extends ServiceEntityRepository
         $data = [];
         foreach ($result as $row) {
             $data[$row['col_num']][$row['block_name']][] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param bool $getTrash
+     * @return array
+     */
+    public function getAdminData(bool $getTrash = false): array
+    {
+        $qb = $this->createQueryBuilder('b')
+            ->select('l.id AS link_id, b.id AS block_id, l.name AS link_name, b.name AS block_name')
+            ->addSelect('b.col_num, l.href, l.icon, b.private AS block_private, l.private AS link_private')
+            ->join(Link::class, 'l')
+            ->where('b.id = l.block')
+            ->andWhere('l.deleted = FALSE AND b.deleted = FALSE')
+            ->orderBy('b.sort')
+            ->addOrderBy('l.name');
+
+        if ($getTrash) {
+            $qb->addSelect('b.deleted AS block_deleted, l.deleted AS link_deleted')
+                ->where('b.deleted = TRUE OR l.deleted = TRUE ')
+                ->andWhere('l.block = b.id');
+        }
+
+        $result = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($result as $row) {
+            $data[$row['col_num']][$row['block_name']]['links'][] = $row;
         }
 
         return $data;

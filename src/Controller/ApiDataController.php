@@ -15,7 +15,7 @@ use Symfony\Component\Routing\Annotation\Route;
  * Class ApiController
  * @package App\Controller
  */
-class ApiController extends AbstractController
+class ApiDataController extends AbstractController
 {
     /**
      * @return JsonResponse
@@ -37,12 +37,12 @@ class ApiController extends AbstractController
     /**
      * @return JsonResponse
      * @Route (
-     *     "data/top",
+     *     "data/expert/top",
      *     format="json",
      * )
      * @throws DBALException
      */
-    public function dataTop(): JsonResponse
+    public function dataExpertTop(): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
@@ -69,5 +69,37 @@ class ApiController extends AbstractController
         return $this->json($data);
     }
 
+    /**
+     * @return JsonResponse
+     * @Route (
+     *     "data/admin",
+     *     format="json",
+     * )
+     */
+    public function dataAdmin(): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
+        /** @var BlockRepository $repository */
+        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $data = (object)['data' => $repository->getAdminData()];
+        return $this->json($data);
+    }
+
+    /**
+     * @return JsonResponse
+     * @Route (
+     *     "data/admin/trash",
+     *     format="json",
+     * )
+     */
+    public function dataAdminTrash(): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        /** @var BlockRepository $repository */
+        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $data = (object)['data' => $repository->getAdminData(true)];
+        return $this->json($data);
+    }
 }
