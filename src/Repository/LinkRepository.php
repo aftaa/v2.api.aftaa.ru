@@ -2,11 +2,16 @@
 
 namespace App\Repository;
 
+use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\DBALException;
 use Doctrine\DBAL\FetchMode;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @method Link|null find($id, $lockMode = null, $lockVersion = null)
@@ -74,4 +79,75 @@ class LinkRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param int $id
+     * @return array|false
+     */
+    public function load(int $id): array
+    {
+        $link = $this->find($id);
+        if (!$link) {
+            return false;
+        }
+        /** @var Link $link */
+        $link = [
+            'block_id' => $link->getBlock()->getId(),
+            'name'     => $link->getName(),
+            'href'     => $link->getHref(),
+            'icon'     => $link->getIcon(),
+            'private'  => $link->getPrivate(),
+        ];
+        return $link;
+    }
+
+    /**
+     * @param Request $request
+     * @return bool
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function save(Request $request): bool
+    {
+        $link = $this->find($request->get('id'));
+        $entityManager = $this->getEntityManager();
+        $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
+
+        if (!$link || !$block) {
+            return false;
+        }
+
+        $link->setBlock($block)
+            ->setName($request->get('name'))
+            ->setHref($request->get('href'))
+            ->setIcon($request->get('icon'))
+            ->setPrivate($request->get('private'));
+
+        $entityManager->flush();
+        return true;
+    }
+
+    /**
+     * @param int $id
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function remove(int $id)
+    {
+        $link = $this->find($id);
+        $link->setDeleted(true);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param int $id
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function restore(int $id)
+    {
+        $link = $this->find($id);
+        $link->setDeleted(false);
+        $this->getEntityManager()->flush();
+    }
 }

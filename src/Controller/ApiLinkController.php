@@ -7,6 +7,8 @@ namespace App\Controller;
 use App\Entity\Block;
 use App\Entity\Link;
 use App\Service\CorsPolicy;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,30 +16,6 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class ApiLinkController extends AbstractController
 {
-    /**
-     * @param Request $request
-     * @Route("link/add")
-     * @return JsonResponse
-     */
-    public function linkAdd(Request $request): JsonResponse
-    {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
-        $entityManager = $this->getDoctrine()->getManager();
-        $link = new Link;
-        $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
-
-        $link->setBlock($block)
-            ->setName($request->get('name'))
-            ->setHref($request->get('href'))
-            ->setIcon($request->get('icon'))
-            ->setPrivate($request->get('private'));
-
-        $entityManager->flush();
-
-        return new JsonResponse(['id' => $link->getId()]);
-    }
-
     /**
      * @param Request $request
      * @Route("link/save")
@@ -48,22 +26,67 @@ class ApiLinkController extends AbstractController
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         $entityManager = $this->getDoctrine()->getManager();
-        $link = $entityManager->getRepository(Link::class)->find($request->get('id'));
-        $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
+        $link = $entityManager->getRepository(Link::class)->save($request);
 
         if (!$link) {
             throw $this->createNotFoundException();
         }
 
+        return new JsonResponse('');
+    }
+
+    /**
+     * @param Request $request
+     * @Route("link/add")
+     * @return JsonResponse
+     */
+    public function linkAdd(Request $request): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        $entityManager = $this->getDoctrine()->getManager();
+        $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
+
+        $link = new Link;
         $link->setBlock($block)
             ->setName($request->get('name'))
             ->setHref($request->get('href'))
             ->setIcon($request->get('icon'))
+            ->setDeleted(false)
             ->setPrivate($request->get('private'));
 
+        $entityManager->persist($link);
         $entityManager->flush();
 
-        return new JsonResponse('');
+        return new JsonResponse(['id' => $link->getId()]);
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @Route("link/remove/{id}")
+     */
+    public function linkRemove(int $id): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        $this->getDoctrine()->getRepository(Link::class)->remove($id);
+        return $this->json(true);
+    }
+
+    /**
+     * @param int $id
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @Route("link/restore/{id}")
+     */
+    public function linkRestore(int $id): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        $this->getDoctrine()->getRepository(Link::class)->restore($id);
+        return $this->json(true);
     }
 
     /**
@@ -75,19 +98,8 @@ class ApiLinkController extends AbstractController
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
-        /** @var Link $link */
-        $link = $this->getDoctrine()->getRepository(Link::class)->find($id);
-
-        if (!$link) {
-            throw $this->createNotFoundException();
-        }
-
-        return $this->json([
-            'block_id' => $link->getBlock()->getId(),
-            'name'     => $link->getName(),
-            'href'     => $link->getHref(),
-            'icon'     => $link->getIcon(),
-            'private'  => $link->getPrivate(),
-        ]);
+        $link = $this->getDoctrine()->getRepository(Link::class)->load($id);
+        if (!$link) throw $this->createNotFoundException();
+        return $this->json($link);
     }
 }

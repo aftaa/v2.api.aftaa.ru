@@ -5,6 +5,8 @@ namespace App\Repository;
 use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -56,6 +58,50 @@ class BlockRepository extends ServiceEntityRepository
     }
     */
 
+    /**
+     * @param int $id
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function remove(int $id)
+    {
+        $block = $this->find($id);
+        $block->setDeleted(true);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param int $id
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function restore(int $id)
+    {
+        $block = $this->find($id);
+        $block->setDeleted(false);
+        $this->getEntityManager()->flush();
+    }
+
+    /**
+     * @param int $id
+     * @return array|false
+     */
+    public function load(int $id): array
+    {
+        $block = $this->find($id);
+        if (!$block) {
+            return false;
+        }
+        /** @var block $block */
+        $block = [
+            'name'     => $block->getName(),
+            'sort'     => $block->getSort(),
+            'col_num'     => $block->getColNum(),
+            'private'  => $block->getPrivate(),
+        ];
+        return $block;
+    }
+    
     /*
     public function findOneBySomeField($value): ?Block
     {
@@ -142,6 +188,11 @@ class BlockRepository extends ServiceEntityRepository
         $data = [];
         foreach ($result as $row) {
             $data[$row['col_num']][$row['block_name']]['links'][] = $row;
+            $data[$row['col_num']][$row['block_name']]['block_id'] = $row['block_id'];
+            if ($getTrash) {
+                $data[$row['col_num']][$row['block_name']]['block_deleted'] = $row['block_deleted'];
+            }
+            $data[$row['col_num']][$row['block_name']]['block_private'] = $row['block_private'];
         }
 
         return $data;
