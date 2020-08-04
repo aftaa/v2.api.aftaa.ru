@@ -14,7 +14,8 @@
         "symfony/dotenv": "4.4.*",
         "symfony/flex": "^1.9",
         "symfony/framework-bundle": "4.4.*",
-        "symfony/yaml": "4.4.*"
+        "symfony/yaml": "4.4.*",
+        "ext-json": "*"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.20"

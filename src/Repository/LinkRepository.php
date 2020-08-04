@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\FetchMode;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -17,6 +19,31 @@ class LinkRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Link::class);
+    }
+
+    /**
+     * @param int $limit
+     * @return array
+     * @throws DBALException
+     */
+    public function getTopData(int $limit = 17): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "select count(l.id) as cnt, l.name, l.href, l.icon
+        from link_view lv join link l on l.id=link_id 
+        where l.private = false
+        group by l.id order by cnt desc, name limit $limit";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+
+        $data = [];
+        foreach ($stmt->fetchAll(FetchMode::STANDARD_OBJECT) as $obj) {
+            $data[] = $obj;
+        }
+
+        return $data;
     }
 
     // /**

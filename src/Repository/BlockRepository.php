@@ -50,7 +50,10 @@ class BlockRepository extends ServiceEntityRepository
     }
     */
 
-    public function getIndexData()
+    /**
+     * @return array
+     */
+    public function getIndexData(): array
     {
         $qb = $this->createQueryBuilder('b')
             ->select('l.id, l.name AS link_name, b.name AS block_name, b.col_num, l.href, l.icon')
@@ -65,6 +68,30 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($rows as $row) {
+            $data[$row['col_num']][$row['block_name']][] = $row;
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return array
+     */
+    public function getExpertData(): array
+    {
+        $result = $this->createQueryBuilder('b')
+            ->select('l.id, l.name AS link_name, b.name AS block_name, b.col_num, l.href, l.icon')
+            ->innerJoin(Link::class, 'l')
+            ->andWhere('l.block = b.id ')
+            ->andWhere('b.deleted = FALSE')
+            ->andWhere('l.deleted = FALSE')
+            ->orderBy('b.sort')
+            ->addOrderBy('l.name')
+            ->getQuery()
+            ->getResult();
+
+        $data = [];
+        foreach ($result as $row) {
             $data[$row['col_num']][$row['block_name']][] = $row;
         }
 

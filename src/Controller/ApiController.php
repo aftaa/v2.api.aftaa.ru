@@ -1,12 +1,14 @@
 <?php
-// src/Controller/LuckyController.php
 namespace App\Controller;
 
 use App\Entity\Block;
+use App\Entity\Link;
 use App\Repository\BlockRepository;
-use Exception;
+use App\Repository\LinkRepository;
+use App\Service\CorsPolicy;
+use Doctrine\DBAL\DBALException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
 /**
@@ -16,29 +18,56 @@ use Symfony\Component\Routing\Annotation\Route;
 class ApiController extends AbstractController
 {
     /**
-     * @return Response
-     * @throws Exception
-     * @Route ("data/index")
+     * @return JsonResponse
+     * @Route (
+     *     "data/index",
+     *     format="json",
+     * )
      */
-    public function dataIndex()
+    public function dataIndex(): JsonResponse
     {
-        $repository = $this->getDoctrine()->getRepository(Block::class);
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
         /** @var BlockRepository $repository */
-        $data = $repository->getIndexData();
-
-        $response = (object)[
-            'data' => ($data),
-        ];
-
-        $response = json_encode($response);
-
-        echo "<pre>";
-        print_r($response);
-        echo "</pre>";
-        die;
-
-        echo 'asd';
-        die;
-        return new Response('');
+        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $data = (object)['data' => $repository->getIndexData()];
+        return $this->json($data);
     }
+
+    /**
+     * @return JsonResponse
+     * @Route (
+     *     "data/top",
+     *     format="json",
+     * )
+     * @throws DBALException
+     */
+    public function dataTop(): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        /** @var LinkRepository $repository */
+        $repository = $this->getDoctrine()->getRepository(Link::class);
+        $data = (object)['data' => $repository->getTopData()];
+        return $this->json($data);
+    }
+
+    /**
+     * @return JsonResponse
+     * @Route (
+     *     "data/expert",
+     *     format="json",
+     * )
+     */
+    public function dataExpert(): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        /** @var BlockRepository $repository */
+        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $data = (object)['data' => $repository->getExpertData()];
+        return $this->json($data);
+    }
+
+
 }
