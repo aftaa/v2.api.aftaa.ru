@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\AbstractQuery;
-use Doctrine\ORM\Query\Expr;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -20,6 +18,25 @@ class BlockRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Block::class);
+    }
+
+    /**
+     * @return array
+     */
+    public function getSelectList()
+    {
+        $rows = $this->createQueryBuilder('b')
+            ->where('b.deleted = false')
+            ->orderBy('b.name')
+            ->getQuery()
+            ->getResult();
+
+        $blocks = [];
+        foreach ($rows as $row) {
+            $blocks[$row->getId()] = $row->getName();
+        }
+
+        return $blocks;
     }
 
     // /**
