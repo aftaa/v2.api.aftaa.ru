@@ -11,6 +11,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiBlockController extends AbstractController
@@ -52,6 +53,40 @@ class ApiBlockController extends AbstractController
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $this->getDoctrine()->getRepository(Block::class)->restore($id);
         return $this->json(true);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @Route("block/add")
+     */
+    public function blockAdd(Request $request): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        $block = $this->getDoctrine()->getRepository(Block::class)->add($request);
+        if (!$block) {
+            throw $this->createNotFoundException();
+        }
+        return $this->json($block->getId());
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @Route("block/save")
+     */
+    public function blockSave(Request $request): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        $block = $this->getDoctrine()->getRepository(Block::class)->save($request);
+        if (!$block) {
+            throw $this->createNotFoundException();
+        }
+        return $this->json($block);
     }
 
     /**

@@ -8,6 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * @method Block|null find($id, $lockMode = null, $lockVersion = null)
@@ -94,14 +95,60 @@ class BlockRepository extends ServiceEntityRepository
         }
         /** @var block $block */
         $block = [
-            'name'     => $block->getName(),
-            'sort'     => $block->getSort(),
-            'col_num'     => $block->getColNum(),
-            'private'  => $block->getPrivate(),
+            'name'    => $block->getName(),
+            'sort'    => $block->getSort(),
+            'col_num' => $block->getColNum(),
+            'private' => $block->getPrivate(),
         ];
         return $block;
     }
-    
+
+    /**
+     * @param Request $request
+     * @return false
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function save(Request $request)
+    {
+        $block = $this->find($request->get('id'));
+        $entityManager = $this->getEntityManager();
+
+        if (!$block) {
+            return false;
+        }
+
+        $block
+            ->setName($request->get('name'))
+            ->setColNum($request->get('col_num'))
+            ->setPrivate($request->get('private'))
+            ->setSort($request->get('sort'));
+
+        $entityManager->flush();
+        return $block;
+    }
+
+    /**
+     * @param Request $request
+     * @return Block
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function add(Request $request): Block
+    {
+        $block = new BLock;
+        $block
+            ->setName($request->get('name'))
+            ->setColNum($request->get('col_num'))
+            ->setPrivate($request->get('private'))
+            ->setDeleted(false)
+            ->setSort($request->get('sort'));
+        $this->getEntityManager()->persist($block);
+        $this->getEntityManager()->flush();
+
+        return $block;
+    }
+
     /*
     public function findOneBySomeField($value): ?Block
     {
