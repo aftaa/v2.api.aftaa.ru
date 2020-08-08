@@ -9,6 +9,7 @@ use App\Entity\Link;
 use App\Service\CorsPolicy;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -101,5 +102,36 @@ class ApiLinkController extends AbstractController
         $link = $this->getDoctrine()->getRepository(Link::class)->load($id);
         if (!$link) throw $this->createNotFoundException();
         return $this->json($link);
+    }
+
+    /**
+     * @param Request $request
+     * @return JsonResponse
+     * @throws Exception
+     */
+    public function getFavicon(Request $request): string
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        $originUrl = $request->get('origin');
+        $name = $request->get('name');
+
+        $faviconContent = file_get_contents($originUrl);
+
+        if (false === $faviconContent) {
+            throw new Exception("Can't get $originUrl");
+        }
+
+        $faviconExt = pathinfo($originUrl, PATHINFO_EXTENSION);
+        $faviconFileName = "$name.$faviconExt";
+        $faviconFileName = "$_SERVER[DOCUMENT_ROOT]/favicons/$faviconFileName";
+
+        if (!file_put_contents($faviconFileName, $faviconContent)) {
+            throw new Exception("Can't set $faviconFileName");
+        }
+
+        $myFaviconUrl = "/favicons/$name.$faviconExt";
+
+        return $this->json($myFaviconUrl);
     }
 }
