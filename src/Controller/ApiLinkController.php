@@ -6,6 +6,7 @@ namespace App\Controller;
 
 use App\Entity\Block;
 use App\Entity\Link;
+use App\Entity\View;
 use App\Service\CorsPolicy;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -133,5 +134,29 @@ class ApiLinkController extends AbstractController
         $myFaviconUrl = "/favicons/$name.$faviconExt";
 
         return $this->json($myFaviconUrl);
+    }
+
+    /**
+     * @param int $id
+     * @param Request $request
+     * @return JsonResponse
+     * @Route("view/{id}")
+     */
+    public function linkView(int $id, Request $request): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        
+        $entityManager = $this->getDoctrine()->getManager();
+        $link = $entityManager->getRepository(Link::class)->find($id);
+        $view = new View;
+        $view->setDateTime(new \DateTime('now'));
+        $view->setIp4(ip2long($request->server->get('REMOTE_ADDR')));
+        $view->setIsGuest(false);
+        $view->setLink($link);
+
+        $entityManager->persist($view);
+        $entityManager->flush();
+
+        return new JsonResponse(['id' => $view->getId()]);
     }
 }

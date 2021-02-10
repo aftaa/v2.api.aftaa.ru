@@ -1,9 +1,13 @@
 <?php
+
 namespace App\Controller;
 
 use App\Entity\Block;
 use App\Entity\Link;
+use App\Entity\LinkDayReport;
+use App\Entity\LinkDayReportRow;
 use App\Repository\BlockRepository;
+use App\Repository\LinkDayReportRepository;
 use App\Repository\LinkRepository;
 use App\Service\CorsPolicy;
 use Doctrine\DBAL\DBALException;
@@ -100,6 +104,60 @@ class ApiDataController extends AbstractController
         /** @var BlockRepository $repository */
         $repository = $this->getDoctrine()->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData(true)];
+        return $this->json($data);
+    }
+
+    /**
+     * @return JsonResponse
+     * @Route ("report/list", format="json")
+     */
+    public function topReportsList(): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        $repository = $this->getDoctrine()->getRepository(LinkDayReport::class);
+        $reports = $repository->findAll();
+
+        /** @var LinkDayReport $report */
+        foreach ($reports as $report) {
+            $data[] = ['date' => $report->getDate()->format('d.m.Y')];
+        }
+
+        return $this->json($data);
+    }
+
+    /**
+     * @param \Datetime $date
+     * @param LinkDayReportRepository $reportRepository
+     * @return JsonResponse
+     * @Route("report/links/{date}")
+     */
+    public function topReportLinks(\Datetime $date, LinkDayReportRepository $reportRepository): JsonResponse
+    {
+        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+
+        if ($reportRepository->exists($date)) {
+            /** @var LinkDayReport $report */
+            $report = $reportRepository->findBy(['date' => $date]);
+
+            /** @var LinkDayReportRow[] $reportLinks */
+            $reportLinks = $report[0]->getReportRows();
+
+            foreach ($reportLinks as $reportLink) {
+                $data[$reportLink->getLinkId()->getId()] = [
+                    'name'     => $reportLink->getLinkId()->getName(),
+                    'icon'     => $reportLink->getLinkId()->getIcon(),
+                    'position' => $reportLink->getPosition(),
+                ];
+            }
+
+            usort($data, function ($link1, $link2) {
+                return $link1['position'] < $link2['position'];
+            });
+
+            $data = array_chunk($data, 10);
+        }
+
         return $this->json($data);
     }
 }

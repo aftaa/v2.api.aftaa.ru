@@ -34,7 +34,7 @@ class LinkRepository extends ServiceEntityRepository
     {
         $conn = $this->getEntityManager()->getConnection();
 
-        $sql = "select count(l.id) as cnt, l.name, l.href, l.icon, l.name AS link_name
+        $sql = "select l.id, count(l.id) as cnt, l.name, l.href, l.icon, l.name AS link_name
         from link_view lv join link l on l.id=link_id 
         where l.private = false
         group by l.id order by cnt desc, name limit $limit";
