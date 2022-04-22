@@ -19,12 +19,15 @@ class CorsPolicy
 
     public function sendHeaders()
     {
-        if (!empty($_SERVER['HTTP_ORIGIN'])) {
-            $origin = $_SERVER['HTTP_ORIGIN'];
-            if (in_array($origin, $this->allowedSites)) {
-                header("Access-Control-Allow-Origin: $origin");
-            }
-        }
+//        if (!empty($_SERVER['HTTP_ORIGIN'])) {
+//            $origin = $_SERVER['HTTP_ORIGIN'];
+//            if (in_array($origin, $this->allowedSites)) {
+//                header("Access-Control-Allow-Origin: $origin");
+//            }
+//        }
+//        header("Access-Control-Allow-Origin: http://gabidullin.online");
+//	header("Access-Control-Allow-Origin: https://gabidullin.online");
+	header("Access-Control-Allow-Origin: *");
     }
 
     /**

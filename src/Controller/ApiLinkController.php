@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Persistence\ManagerRegistry;
 
 class ApiLinkController extends AbstractController
 {
@@ -96,11 +97,11 @@ class ApiLinkController extends AbstractController
      * @param int $id
      * @return JsonResponse
      */
-    public function linkLoad(int $id): JsonResponse
+    public function linkLoad(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
-        $link = $this->getDoctrine()->getRepository(Link::class)->load($id);
+        $link = $doctrine->getRepository(Link::class)->load($id);
         if (!$link) throw $this->createNotFoundException();
         return $this->json($link);
     }
@@ -142,11 +143,11 @@ class ApiLinkController extends AbstractController
      * @return JsonResponse
      * @Route("view/{id}")
      */
-    public function linkView(int $id, Request $request): JsonResponse
+    public function linkView(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->find($id);
         $view = new View;
         $view->setDateTime(new \DateTime('now'));

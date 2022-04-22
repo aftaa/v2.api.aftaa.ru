@@ -179,6 +179,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($rows as $row) {
+	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']][] = $row;
         }
 
@@ -203,6 +204,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($result as $row) {
+	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']][] = $row;
         }
 
@@ -234,6 +236,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($result as $row) {
+	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']]['links'][] = $row;
             $data[$row['col_num']][$row['block_name']]['block_id'] = $row['block_id'];
             if ($getTrash) {

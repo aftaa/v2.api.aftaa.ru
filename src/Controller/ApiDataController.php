@@ -14,6 +14,7 @@ use Doctrine\DBAL\DBALException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * Class ApiController
@@ -28,12 +29,12 @@ class ApiDataController extends AbstractController
      *     format="json",
      * )
      */
-    public function dataIndex(): JsonResponse
+    public function dataIndex(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         /** @var BlockRepository $repository */
-        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getIndexData()];
         return $this->json($data);
     }
@@ -46,12 +47,12 @@ class ApiDataController extends AbstractController
      * )
      * @throws DBALException
      */
-    public function dataExpertTop(): JsonResponse
+    public function dataExpertTop(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         /** @var LinkRepository $repository */
-        $repository = $this->getDoctrine()->getRepository(Link::class);
+        $repository = $doctrine->getRepository(Link::class);
         $data = (object)['data' => $repository->getTopData()];
         return $this->json($data);
     }
@@ -63,12 +64,12 @@ class ApiDataController extends AbstractController
      *     format="json",
      * )
      */
-    public function dataExpert(): JsonResponse
+    public function dataExpert(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         /** @var BlockRepository $repository */
-        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getExpertData()];
         return $this->json($data);
     }

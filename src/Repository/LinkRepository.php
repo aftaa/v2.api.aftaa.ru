@@ -44,6 +44,7 @@ class LinkRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($stmt->fetchAll(FetchMode::STANDARD_OBJECT) as $obj) {
+	    $obj->icon = str_replace('https://', 'http://', $obj->icon);
             $data[] = $obj;
         }
 
