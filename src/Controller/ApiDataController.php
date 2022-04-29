@@ -81,12 +81,12 @@ class ApiDataController extends AbstractController
      *     format="json",
      * )
      */
-    public function dataAdmin(): JsonResponse
+    public function dataAdmin(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         /** @var BlockRepository $repository */
-        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData()];
         return $this->json($data);
     }
@@ -98,12 +98,12 @@ class ApiDataController extends AbstractController
      *     format="json",
      * )
      */
-    public function dataAdminTrash(): JsonResponse
+    public function dataAdminTrash(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
         /** @var BlockRepository $repository */
-        $repository = $this->getDoctrine()->getRepository(Block::class);
+        $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData(true)];
         return $this->json($data);
     }
@@ -112,11 +112,11 @@ class ApiDataController extends AbstractController
      * @return JsonResponse
      * @Route ("report/list", format="json")
      */
-    public function topReportsList(): JsonResponse
+    public function topReportsList(ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
-        $repository = $this->getDoctrine()->getRepository(LinkDayReport::class);
+        $repository = $doctrine->getRepository(LinkDayReport::class);
         $reports = $repository->findAll();
 
         /** @var LinkDayReport $report */
