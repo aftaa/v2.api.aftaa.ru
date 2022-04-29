@@ -71,10 +71,10 @@ class ApiLinkController extends AbstractController
      * @throws OptimisticLockException
      * @Route("link/remove/{id}")
      */
-    public function linkRemove(int $id): JsonResponse
+    public function linkRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        $this->getDoctrine()->getRepository(Link::class)->remove($id);
+        $doctrine->getRepository(Link::class)->remove($id);
         return $this->json(true);
     }
 
