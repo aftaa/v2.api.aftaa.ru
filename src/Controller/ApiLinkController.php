@@ -20,15 +20,16 @@ use Doctrine\Persistence\ManagerRegistry;
 class ApiLinkController extends AbstractController
 {
     /**
-     * @param Request $request
      * @Route("link/save")
+     * @param Request $request
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
      */
-    public function linkSave(Request $request): JsonResponse
+    public function linkSave(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->save($request);
 
         if (!$link) {
@@ -39,15 +40,16 @@ class ApiLinkController extends AbstractController
     }
 
     /**
-     * @param Request $request
      * @Route("link/add")
+     * @param Request $request
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
      */
-    public function linkAdd(Request $request): JsonResponse
+    public function linkAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
 
-        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager = $doctrine->getManager();
         $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
 
         $link = new Link;
@@ -79,22 +81,22 @@ class ApiLinkController extends AbstractController
     }
 
     /**
-     * @param int $id
-     * @return JsonResponse
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @Route("link/restore/{id}")
+     * @param int $id
+     * @param ManagerRegistry $doctrine
+     * @return JsonResponse
      */
-    public function linkRestore(int $id): JsonResponse
+    public function linkRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        $this->getDoctrine()->getRepository(Link::class)->restore($id);
+        $doctrine->getRepository(Link::class)->restore($id);
         return $this->json(true);
     }
 
     /**
      * @Route("link/{id}")
      * @param int $id
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
      */
     public function linkLoad(int $id, ManagerRegistry $doctrine): JsonResponse
@@ -138,10 +140,11 @@ class ApiLinkController extends AbstractController
     }
 
     /**
+     * @Route("view/{id}")
      * @param int $id
      * @param Request $request
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
-     * @Route("view/{id}")
      */
     public function linkView(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
