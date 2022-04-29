@@ -18,6 +18,7 @@ class ApiBlockController extends AbstractController
 {
     /**
      * @Route("/blocks")
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
      */
     public function blocksList(ManagerRegistry $doctrine): JsonResponse
@@ -28,13 +29,12 @@ class ApiBlockController extends AbstractController
     }
 
     /**
-     * @param int $id
-     * @return JsonResponse
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @Route("block/remove/{id}")
+     * @param int $id
+     * @param ManagerRegistry $doctrine
+     * @return JsonResponse
      */
-    public function blockRemove(int $id, ManagerRegisrty $doctrine): JsonResponse
+    public function blockRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Block::class)->remove($id);
@@ -42,11 +42,10 @@ class ApiBlockController extends AbstractController
     }
 
     /**
-     * @param int $id
-     * @return JsonResponse
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @Route("block/restore/{id}")
+     * @param int $id
+     * @param ManagerRegistry $doctrine
+     * @return JsonResponse
      */
     public function blockRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
@@ -56,16 +55,15 @@ class ApiBlockController extends AbstractController
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @Route("block/add")
+     * @param Request $request
+     * @param ManagerRegistry $doctrine
+     * @return JsonResponse
      */
-    public function blockAdd(Request $request): JsonResponse
+    public function blockAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        $block = $this->getDoctrine()->getRepository(Block::class)->add($request);
+        $block = $doctrine->getRepository(Block::class)->add($request);
         if (!$block) {
             throw $this->createNotFoundException();
         }
@@ -73,16 +71,15 @@ class ApiBlockController extends AbstractController
     }
 
     /**
-     * @param Request $request
-     * @return JsonResponse
-     * @throws ORMException
-     * @throws OptimisticLockException
      * @Route("block/save")
+     * @param Request $request
+     * @param ManagerRegistry $doctrine
+     * @return JsonResponse
      */
-    public function blockSave(Request $request): JsonResponse
+    public function blockSave(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        $block = $this->getDoctrine()->getRepository(Block::class)->save($request);
+        $block = $doctrine->getRepository(Block::class)->save($request);
         if (!$block) {
             throw $this->createNotFoundException();
         }
@@ -90,8 +87,9 @@ class ApiBlockController extends AbstractController
     }
 
     /**
-     * @param int $id
      * @Route("block/{id}")
+     * @param int $id
+     * @param ManagerRegistry $doctrine
      * @return JsonResponse
      */
     public function blockLoad(int $id, ManagerRegistry $doctrine): JsonResponse
