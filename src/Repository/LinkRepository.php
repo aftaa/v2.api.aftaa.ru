@@ -6,6 +6,7 @@ use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\DBALException;
+use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\FetchMode;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -29,6 +30,7 @@ class LinkRepository extends ServiceEntityRepository
      * @param int $limit
      * @return array
      * @throws DBALException
+     * @throws Exception
      */
     public function getTopData(int $limit = 17): array
     {
@@ -40,12 +42,12 @@ class LinkRepository extends ServiceEntityRepository
         group by l.id order by cnt desc, name limit $limit";
 
         $stmt = $conn->prepare($sql);
-        $stmt->execute();
+        $result = $stmt->executeQuery();
 
         $data = [];
-        foreach ($stmt->fetchAll(FetchMode::STANDARD_OBJECT) as $obj) {
-	    $obj->icon = str_replace('https://', 'http://', $obj->icon);
-            $data[] = $obj;
+        foreach ($result->fetchAllAssociative() as $row) {
+	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
+            $data[] = $row;
         }
 
         return $data;
