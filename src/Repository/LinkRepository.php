@@ -45,10 +45,10 @@ class LinkRepository extends ServiceEntityRepository
         $result = $stmt->executeQuery();
 
         $data = [];
-//        foreach ($result->fetchAllAssociative() as $row) {
-//	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
-//            $data[] = $row;
-//        }
+        foreach ($result->fetchAllAssociative() as $row) {
+	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
+            $data[] = $row;
+        }
 
         return $data;
     }
