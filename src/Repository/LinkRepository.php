@@ -6,8 +6,6 @@ use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -19,6 +17,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class LinkRepository extends ServiceEntityRepository
 {
+    /**
+     * @param ManagerRegistry $registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Link::class);
@@ -27,7 +28,6 @@ class LinkRepository extends ServiceEntityRepository
     /**
      * @param int $limit
      * @return array
-     * @throws DBALException
      * @throws Exception
      */
     public function getTopData(int $limit = 17): array
@@ -82,7 +82,7 @@ class LinkRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @return array|false
+     * @return array
      */
     public function load(int $id): array
     {
@@ -91,21 +91,18 @@ class LinkRepository extends ServiceEntityRepository
             return false;
         }
         /** @var Link $link */
-        $link = [
+        return [
             'block_id' => $link->getBlock()->getId(),
             'name'     => $link->getName(),
             'href'     => $link->getHref(),
             'icon'     => $link->getIcon(),
             'private'  => $link->getPrivate(),
         ];
-        return $link;
     }
 
     /**
      * @param Request $request
      * @return bool
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function save(Request $request): bool
     {
@@ -129,10 +126,9 @@ class LinkRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return void
      */
-    public function remove(int $id)
+    public function remove(int $id): void
     {
         $link = $this->find($id);
         $link->setDeleted(true);
@@ -141,10 +137,9 @@ class LinkRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return void
      */
-    public function restore(int $id)
+    public function restore(int $id): void
     {
         $link = $this->find($id);
         $link->setDeleted(false);
