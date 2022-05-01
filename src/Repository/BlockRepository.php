@@ -5,8 +5,6 @@ namespace App\Repository;
 use App\Entity\Block;
 use App\Entity\Link;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -18,6 +16,9 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class BlockRepository extends ServiceEntityRepository
 {
+    /**
+     * @param ManagerRegistry $registry
+     */
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Block::class);
@@ -61,10 +62,9 @@ class BlockRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return void
      */
-    public function remove(int $id)
+    public function remove(int $id): void
     {
         $block = $this->find($id);
         $block->setDeleted(true);
@@ -73,10 +73,9 @@ class BlockRepository extends ServiceEntityRepository
 
     /**
      * @param int $id
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return void
      */
-    public function restore(int $id)
+    public function restore(int $id): void
     {
         $block = $this->find($id);
         $block->setDeleted(false);
@@ -87,29 +86,26 @@ class BlockRepository extends ServiceEntityRepository
      * @param int $id
      * @return array|false
      */
-    public function load(int $id): array
+    public function load(int $id): array|false
     {
         $block = $this->find($id);
         if (!$block) {
             return false;
         }
         /** @var block $block */
-        $block = [
-            'name'    => $block->getName(),
-            'sort'    => $block->getSort(),
+        return [
+            'name' => $block->getName(),
+            'sort' => $block->getSort(),
             'col_num' => $block->getColNum(),
             'private' => $block->getPrivate(),
         ];
-        return $block;
     }
 
     /**
      * @param Request $request
-     * @return false
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @return Block|false
      */
-    public function save(Request $request)
+    public function save(Request $request): Block|false
     {
         $block = $this->find($request->get('id'));
         $entityManager = $this->getEntityManager();
@@ -131,8 +127,6 @@ class BlockRepository extends ServiceEntityRepository
     /**
      * @param Request $request
      * @return Block
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function add(Request $request): Block
     {
@@ -179,7 +173,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($rows as $row) {
-	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
+            $row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']][] = $row;
         }
 
@@ -204,7 +198,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($result as $row) {
-	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
+            //$row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']][] = $row;
         }
 
@@ -236,7 +230,7 @@ class BlockRepository extends ServiceEntityRepository
 
         $data = [];
         foreach ($result as $row) {
-	    $row['icon'] = str_replace('https://', 'http://', $row['icon']);
+//            $row['icon'] = str_replace('https://', 'http://', $row['icon']);
             $data[$row['col_num']][$row['block_name']]['links'][] = $row;
             $data[$row['col_num']][$row['block_name']]['block_id'] = $row['block_id'];
             if ($getTrash) {
