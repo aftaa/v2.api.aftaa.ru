@@ -5,6 +5,7 @@ namespace App\Command;
 use App\Entity\LinkDayReport;
 use App\Entity\LinkDayReportRow;
 use App\Repository\LinkDayReportRepository;
+use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\LinkRepository;
 use Symfony\Component\Console\Command\Command;
@@ -36,6 +37,9 @@ class CronDayReport extends Command
     {
     }
 
+    /**
+     * @throws Exception
+     */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $topData = $this->linkRepository->getTopData(100);
@@ -53,11 +57,11 @@ class CronDayReport extends Command
         $this->entityManager->flush();
 
         foreach ($topData as $topDataItem) {
-            $link = $this->linkRepository->find($topDataItem->id);
+            $link = $this->linkRepository->find($topDataItem['id']);
             $reportRow = new LinkDayReportRow();
             $reportRow->setLinkId($link);
             $reportRow->setReportId($report);
-            $reportRow->setPosition($topDataItem->cnt);
+            $reportRow->setPosition($topDataItem['cnt']);
 
             $this->entityManager->persist($reportRow);
             $this->entityManager->flush();
