@@ -22,8 +22,9 @@ services:
   mysql:
     image: mysql:latest
     ports:
-      - "3385:3306"
+      - "3385:3385"
     volumes:
       - ./docker/mysql:/var/lib/mysql
     environment:
       MYSQL_ROOT_PASSWORD: root
+      MYSQL_TCP_PORT: 3385
