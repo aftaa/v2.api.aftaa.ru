@@ -9,6 +9,7 @@ services:
       - .:/var/www/v2.api.aftaa.ru
       - ./docker/nginx/hosts:/etc/nginx/conf.d
       - ./docker/nginx/logs:/var/log/nginx
+    restart: always
     links:
       - php
 
@@ -16,6 +17,7 @@ services:
     build: ./docker/php
     volumes:
       - .:/var/www/v2.api.aftaa.ru
+    restart: always
     links:
       - mysql
 
@@ -28,3 +30,4 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_TCP_PORT: 3385
+    restart: always

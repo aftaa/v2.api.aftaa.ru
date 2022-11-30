@@ -1,1 +1,1 @@
-9 23 * * * /var/www/v2.api.aftaa.ru/dc exec php symfony console app:day-report
+59 23 * * * /var/www/v2.api.aftaa.ru/dc exec php symfony console app:day-report
