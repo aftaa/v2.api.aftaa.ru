@@ -30,7 +30,7 @@ class CorsPolicy
 //        }
 //        header("Access-Control-Allow-Origin: http://gabidullin.online");
 //	header("Access-Control-Allow-Origin: https://gabidullin.online");
-	    header("Access-Control-Allow-Origin: *");
+//	    header("Access-Control-Allow-Origin: *");
     }
 
     /**
