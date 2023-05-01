@@ -5,7 +5,7 @@ namespace App\Controller;
 
 
 use App\Entity\Block;
-use App\Service\CorsPolicy;
+use App\Service\Cors;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,6 +16,12 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class ApiBlockController extends AbstractController
 {
+    public function __construct(
+        private readonly Cors $cors,
+    )
+    {
+    }
+
     /**
      * @Route("/blocks")
      * @param ManagerRegistry $doctrine
@@ -23,9 +29,8 @@ class ApiBlockController extends AbstractController
      */
     public function blocksList(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $blocks = $doctrine->getRepository(Block::class)->getSelectList();
-        return $this->json($blocks);
+        return $this->json(true, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -36,9 +41,8 @@ class ApiBlockController extends AbstractController
      */
     public function blockRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Block::class)->remove($id);
-        return $this->json(true);
+        return $this->json(true, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -49,9 +53,8 @@ class ApiBlockController extends AbstractController
      */
     public function blockRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Block::class)->restore($id);
-        return $this->json(true);
+        return $this->json(true, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -62,12 +65,11 @@ class ApiBlockController extends AbstractController
      */
     public function blockAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $block = $doctrine->getRepository(Block::class)->add($request);
         if (!$block) {
             throw $this->createNotFoundException();
         }
-        return $this->json($block->getId());
+        return $this->json($block->getId(), 200, $this->cors->getHeaders());
     }
 
     /**
@@ -78,12 +80,11 @@ class ApiBlockController extends AbstractController
      */
     public function blockSave(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $block = $doctrine->getRepository(Block::class)->save($request);
         if (!$block) {
             throw $this->createNotFoundException();
         }
-        return $this->json($block);
+        return $this->json($block, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -94,11 +95,8 @@ class ApiBlockController extends AbstractController
      */
     public function blockLoad(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $block = $doctrine->getRepository(Block::class)->load($id);
         if (!$block) throw $this->createNotFoundException();
-        return $this->json($block);
-
+        return $this->json($block, 200, $this->cors->getHeaders());
     }
 }

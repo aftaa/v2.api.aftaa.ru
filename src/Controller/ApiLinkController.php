@@ -7,7 +7,7 @@ namespace App\Controller;
 use App\Entity\Block;
 use App\Entity\Link;
 use App\Entity\View;
-use App\Service\CorsPolicy;
+use App\Service\Cors;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Exception;
@@ -19,6 +19,12 @@ use Doctrine\Persistence\ManagerRegistry;
 
 class ApiLinkController extends AbstractController
 {
+    public function __construct(
+        private readonly Cors $cors,
+    )
+    {
+    }
+
     /**
      * @Route("link/save")
      * @param Request $request
@@ -27,8 +33,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkSave(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->save($request);
 
@@ -36,7 +40,7 @@ class ApiLinkController extends AbstractController
             throw $this->createNotFoundException();
         }
 
-        return new JsonResponse('');
+        return $this->json('', 200, $this->cors->getHeaders());
     }
 
     /**
@@ -47,8 +51,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $entityManager = $doctrine->getManager();
         $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
 
@@ -63,7 +65,7 @@ class ApiLinkController extends AbstractController
         $entityManager->persist($link);
         $entityManager->flush();
 
-        return new JsonResponse(['id' => $link->getId()]);
+        return $this->json(['id' => $link->getId()], 200, $this->cors->getHeaders());
     }
 
     /**
@@ -75,9 +77,8 @@ class ApiLinkController extends AbstractController
      */
     public function linkRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Link::class)->remove($id);
-        return $this->json(true);
+        return $this->json(true, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -88,9 +89,8 @@ class ApiLinkController extends AbstractController
      */
     public function linkRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Link::class)->restore($id);
-        return $this->json(true);
+        return $this->json(true, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -101,11 +101,9 @@ class ApiLinkController extends AbstractController
      */
     public function linkLoad(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $link = $doctrine->getRepository(Link::class)->load($id);
         if (!$link) throw $this->createNotFoundException();
-        return $this->json($link);
+        return $this->json($link, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -115,8 +113,6 @@ class ApiLinkController extends AbstractController
      */
     public function getFavicon(Request $request): string
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $originUrl = $request->get('origin');
         $name = $request->get('name');
 
@@ -136,7 +132,7 @@ class ApiLinkController extends AbstractController
 
         $myFaviconUrl = "/favicons/$name.$faviconExt";
 
-        return $this->json($myFaviconUrl);
+        return $this->json($myFaviconUrl, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -148,8 +144,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkView(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        
         $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->find($id);
         $view = new View;
@@ -160,7 +154,6 @@ class ApiLinkController extends AbstractController
 
         $entityManager->persist($view);
         $entityManager->flush();
-
-        return new JsonResponse(['id' => $view->getId()]);
+        return $this->json(['id' => $view->getId()], 200, $this->cors->getHeaders());
     }
 }

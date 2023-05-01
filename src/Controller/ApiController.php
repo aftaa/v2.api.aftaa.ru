@@ -4,7 +4,7 @@
 namespace App\Controller;
 
 
-use App\Service\CorsPolicy;
+use App\Service\Cors;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 class ApiController extends AbstractController
@@ -15,7 +15,7 @@ class ApiController extends AbstractController
      */
     public function __construct()
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
+        (new Cors(['https://aftaa.ru']))->sendHeaders();
         parent::__construct();
     }
 }

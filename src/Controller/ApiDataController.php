@@ -9,7 +9,7 @@ use App\Entity\LinkDayReportRow;
 use App\Repository\BlockRepository;
 use App\Repository\LinkDayReportRepository;
 use App\Repository\LinkRepository;
-use App\Service\CorsPolicy;
+use App\Service\Cors;
 use Doctrine\DBAL\DBALException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -22,6 +22,10 @@ use Doctrine\Persistence\ManagerRegistry;
  */
 class ApiDataController extends AbstractController
 {
+    public function __construct(private readonly Cors $cors)
+    {
+    }
+
     /**
      * @return JsonResponse
      * @Route (
@@ -31,12 +35,10 @@ class ApiDataController extends AbstractController
      */
     public function dataIndex(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getIndexData()];
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -49,12 +51,10 @@ class ApiDataController extends AbstractController
      */
     public function dataExpertTop(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var LinkRepository $repository */
         $repository = $doctrine->getRepository(Link::class);
         $data = (object)['data' => $repository->getTopData()];
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -66,12 +66,10 @@ class ApiDataController extends AbstractController
      */
     public function dataExpert(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getExpertData()];
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -83,12 +81,10 @@ class ApiDataController extends AbstractController
      */
     public function dataAdmin(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData()];
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -100,12 +96,10 @@ class ApiDataController extends AbstractController
      */
     public function dataAdminTrash(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData(true)];
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -114,8 +108,6 @@ class ApiDataController extends AbstractController
      */
     public function topReportsList(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $repository = $doctrine->getRepository(LinkDayReport::class);
         $reports = $repository->findAll();
 
@@ -124,7 +116,7 @@ class ApiDataController extends AbstractController
             $data[] = ['date' => $report->getDate()->format('d.m.Y')];
         }
 
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 
     /**
@@ -135,8 +127,6 @@ class ApiDataController extends AbstractController
      */
     public function topReportLinks(\Datetime $date, LinkDayReportRepository $reportRepository): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         if ($reportRepository->exists($date)) {
             /** @var LinkDayReport $report */
             $report = $reportRepository->findBy(['date' => $date]);
@@ -159,6 +149,6 @@ class ApiDataController extends AbstractController
             $data = array_chunk($data, 10);
         }
 
-        return $this->json($data);
+        return $this->json($data, 200, $this->cors->getHeaders());
     }
 }
