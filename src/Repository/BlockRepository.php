@@ -126,9 +126,9 @@ class BlockRepository extends ServiceEntityRepository
 
     /**
      * @param Request $request
-     * @return Block
+     * @return Block|false
      */
-    public function add(Request $request): Block
+    public function add(Request $request): Block|false
     {
         $block = new BLock;
         $block
@@ -142,18 +142,6 @@ class BlockRepository extends ServiceEntityRepository
 
         return $block;
     }
-
-    /*
-    public function findOneBySomeField($value): ?Block
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 
     /**
      * @return array
