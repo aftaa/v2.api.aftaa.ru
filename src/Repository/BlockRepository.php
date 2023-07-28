@@ -65,7 +65,7 @@ class BlockRepository extends ServiceEntityRepository
      * @param Block $block
      * @return void
      */
-    public function remove(Block $block): void
+    public function delete(Block $block): void
     {
         $block->setDeleted(true);
         $this->getEntityManager()->flush();

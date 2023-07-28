@@ -50,7 +50,7 @@ class BlockController extends AbstractController
     }
 
     /**
-     * @param Request $request
+     * @param \stdClass $payload
      * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
