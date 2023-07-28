@@ -5,6 +5,7 @@ namespace App\Controller;
 
 use App\Entity\Block;
 use App\Repository\BlockRepository;
+use stdClass;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,12 +51,12 @@ class BlockController extends AbstractController
     }
 
     /**
-     * @param \stdClass $payload
+     * @param stdClass $payload
      * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/block/add', methods: ['POST'])]
-    public function blockAdd(#[MapRequestPayload] \stdClass $payload, BlockRepository $blockRepository): JsonResponse
+    public function blockAdd(#[MapRequestPayload] stdClass $payload, BlockRepository $blockRepository): JsonResponse
     {
         $block = new BLock();
         $block
@@ -69,17 +70,20 @@ class BlockController extends AbstractController
     }
 
     /**
-     * @param Request $request
-     * @param ManagerRegistry $doctrine
+     * @param stdClass $payload
+     * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/block/save', methods: ['POST'])]
-    public function blockSave(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function blockSave(#[MapRequestPayload] stdClass $payload, BlockRepository $blockRepository): JsonResponse
     {
-        $block = $doctrine->getRepository(Block::class)->save($request);
-        if (!$block) {
-            throw $this->createNotFoundException();
-        }
+        $block = $blockRepository->find($payload->id);
+        $block
+            ->setName($payload->name)
+            ->setColNum($payload->col_num)
+            ->setPrivate($payload->private)
+            ->setSort($payload->sort);
+        $blockRepository->save($block, true);
         return $this->json($block);
     }
 

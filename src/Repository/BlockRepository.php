@@ -101,37 +101,6 @@ class BlockRepository extends ServiceEntityRepository
     }
 
     /**
-     * @param Request $request
-     * @return Block|false
-     */
-    public function save(Request $request): Block|false
-    {
-        $block = $this->find($request->get('id'));
-        $entityManager = $this->getEntityManager();
-
-        if (!$block) {
-            return false;
-        }
-
-        $block
-            ->setName($request->get('name'))
-            ->setColNum($request->get('col_num'))
-            ->setPrivate($request->get('private'))
-            ->setSort($request->get('sort'));
-
-        $entityManager->flush();
-        return $block;
-    }
-
-    /**
-     * @param Request $request
-     * @return Block|false
-     */
-    public function add(Request $request): Block|false
-    {
-    }
-
-    /**
      * @return array
      */
     public function getIndexData(): array
