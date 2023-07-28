@@ -27,8 +27,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkSave(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->save($request);
 
@@ -47,8 +45,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $entityManager = $doctrine->getManager();
         $block = $entityManager->getRepository(Block::class)->find($request->get('block_id'));
 
@@ -75,7 +71,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Link::class)->remove($id);
         return $this->json(true);
     }
@@ -88,7 +83,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
         $doctrine->getRepository(Link::class)->restore($id);
         return $this->json(true);
     }
@@ -101,8 +95,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkLoad(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $link = $doctrine->getRepository(Link::class)->load($id);
         if (!$link) throw $this->createNotFoundException();
         return $this->json($link);
@@ -115,8 +107,6 @@ class ApiLinkController extends AbstractController
      */
     public function getFavicon(Request $request): string
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $originUrl = $request->get('origin');
         $name = $request->get('name');
 
@@ -148,8 +138,6 @@ class ApiLinkController extends AbstractController
      */
     public function linkView(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-        
         $entityManager = $doctrine->getManager();
         $link = $entityManager->getRepository(Link::class)->find($id);
         $view = new View;

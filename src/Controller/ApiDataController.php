@@ -31,8 +31,6 @@ class ApiDataController extends AbstractController
      */
     public function dataIndex(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getIndexData()];
@@ -49,8 +47,6 @@ class ApiDataController extends AbstractController
      */
     public function dataExpertTop(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var LinkRepository $repository */
         $repository = $doctrine->getRepository(Link::class);
         $data = (object)['data' => $repository->getTopData()];
@@ -66,8 +62,6 @@ class ApiDataController extends AbstractController
      */
     public function dataExpert(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getExpertData()];
@@ -83,8 +77,6 @@ class ApiDataController extends AbstractController
      */
     public function dataAdmin(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData()];
@@ -100,8 +92,6 @@ class ApiDataController extends AbstractController
      */
     public function dataAdminTrash(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         /** @var BlockRepository $repository */
         $repository = $doctrine->getRepository(Block::class);
         $data = (object)['data' => $repository->getAdminData(true)];
@@ -114,8 +104,6 @@ class ApiDataController extends AbstractController
      */
     public function topReportsList(ManagerRegistry $doctrine): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         $repository = $doctrine->getRepository(LinkDayReport::class);
         $reports = $repository->findAll();
 
@@ -135,8 +123,6 @@ class ApiDataController extends AbstractController
      */
     public function topReportLinks(\Datetime $date, LinkDayReportRepository $reportRepository): JsonResponse
     {
-        (new CorsPolicy(['https://aftaa.ru']))->sendHeaders();
-
         if ($reportRepository->exists($date)) {
             /** @var LinkDayReport $report */
             $report = $reportRepository->findBy(['date' => $date]);
