@@ -24,6 +24,24 @@ class BlockRepository extends ServiceEntityRepository
         parent::__construct($registry, Block::class);
     }
 
+    public function save(Block $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->persist($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
+    public function remove(Block $entity, bool $flush = false): void
+    {
+        $this->getEntityManager()->remove($entity);
+
+        if ($flush) {
+            $this->getEntityManager()->flush();
+        }
+    }
+
     /**
      * @return array
      */
@@ -111,17 +129,6 @@ class BlockRepository extends ServiceEntityRepository
      */
     public function add(Request $request): Block|false
     {
-        $block = new BLock;
-        $block
-            ->setName($request->get('name'))
-            ->setColNum($request->get('col_num'))
-            ->setPrivate($request->get('private'))
-            ->setDeleted(false)
-            ->setSort($request->get('sort'));
-        $this->getEntityManager()->persist($block);
-        $this->getEntityManager()->flush();
-
-        return $block;
     }
 
     /**

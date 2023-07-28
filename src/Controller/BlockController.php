@@ -8,6 +8,7 @@ use App\Repository\BlockRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -54,9 +55,16 @@ class BlockController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/block/add', methods: ['POST'])]
-    public function blockAdd(BlockRepository $blockRepository): JsonResponse
+    public function blockAdd(#[MapRequestPayload] \stdClass $payload, BlockRepository $blockRepository): JsonResponse
     {
-        $blockRepository->add($request);
+        $block = new BLock();
+        $block
+            ->setName($payload->name)
+            ->setColNum($payload->col_num)
+            ->setPrivate($payload->private)
+            ->setDeleted(false)
+            ->setSort($payload->sort);
+        $blockRepository->save($block, true);
         return $this->json($block->getId());
     }
 
