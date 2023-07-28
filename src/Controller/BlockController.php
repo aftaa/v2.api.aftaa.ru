@@ -5,14 +5,13 @@ namespace App\Controller;
 
 use App\Entity\Block;
 use App\Repository\BlockRepository;
-use App\Service\CorsPolicy;
-use Doctrine\ORM\OptimisticLockException;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\Persistence\ManagerRegistry;
 
-class ApiBlockController extends BaseController
+class BlockController extends AbstractController
 {
     /**
      * @param BlockRepository $blockRepository
@@ -22,7 +21,7 @@ class ApiBlockController extends BaseController
     public function blocksList(BlockRepository $blockRepository): JsonResponse
     {
         $blocks = $blockRepository->getSelectList();
-        return $this->jsonAndHeader($blocks);
+        return $this->json($blocks);
     }
 
     /**
@@ -34,7 +33,7 @@ class ApiBlockController extends BaseController
     public function blockRemove(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $doctrine->getRepository(Block::class)->remove($id);
-        return $this->jsonAndHeader(true);
+        return $this->json(true);
     }
 
     /**
@@ -46,7 +45,7 @@ class ApiBlockController extends BaseController
     public function blockRestore(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $doctrine->getRepository(Block::class)->restore($id);
-        return $this->jsonAndHeader(true);
+        return $this->json(true);
     }
 
     /**
@@ -61,7 +60,7 @@ class ApiBlockController extends BaseController
         if (!$block) {
             throw $this->createNotFoundException();
         }
-        return $this->jsonAndHeader($block->getId());
+        return $this->json($block->getId());
     }
 
     /**
@@ -76,7 +75,7 @@ class ApiBlockController extends BaseController
         if (!$block) {
             throw $this->createNotFoundException();
         }
-        return $this->jsonAndHeader($block);
+        return $this->json($block);
     }
 
     /**
