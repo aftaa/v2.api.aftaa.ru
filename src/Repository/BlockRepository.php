@@ -27,7 +27,7 @@ class BlockRepository extends ServiceEntityRepository
     /**
      * @return array
      */
-    public function getSelectList()
+    public function getSelectList(): array
     {
         $rows = $this->createQueryBuilder('b')
             ->where('b.deleted = false')
@@ -43,41 +43,22 @@ class BlockRepository extends ServiceEntityRepository
         return $blocks;
     }
 
-    // /**
-    //  * @return Block[] Returns an array of Block objects
-    //  */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('b')
-            ->andWhere('b.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('b.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
     /**
-     * @param int $id
+     * @param Block $block
      * @return void
      */
-    public function remove(int $id): void
+    public function remove(Block $block): void
     {
-        $block = $this->find($id);
         $block->setDeleted(true);
         $this->getEntityManager()->flush();
     }
 
     /**
-     * @param int $id
+     * @param Block $block
      * @return void
      */
-    public function restore(int $id): void
+    public function restore(Block $block): void
     {
-        $block = $this->find($id);
         $block->setDeleted(false);
         $this->getEntityManager()->flush();
     }

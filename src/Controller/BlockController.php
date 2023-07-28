@@ -25,26 +25,26 @@ class BlockController extends AbstractController
     }
 
     /**
-     * @param int $id
-     * @param ManagerRegistry $doctrine
+     * @param Block $block
+     * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/block/remove/{id}')]
-    public function blockRemove(int $id, ManagerRegistry $doctrine): JsonResponse
+    public function blockRemove(Block $block, BlockRepository $blockRepository): JsonResponse
     {
-        $doctrine->getRepository(Block::class)->remove($id);
+        $blockRepository->remove($block);
         return $this->json(true);
     }
 
     /**
-     * @param int $id
-     * @param ManagerRegistry $doctrine
+     * @param Block $block
+     * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/block/restore/{id}')]
-    public function blockRestore(int $id, ManagerRegistry $doctrine): JsonResponse
+    public function blockRestore(Block $block, BlockRepository $blockRepository): JsonResponse
     {
-        $doctrine->getRepository(Block::class)->restore($id);
+        $blockRepository->restore($block);
         return $this->json(true);
     }
 
@@ -54,12 +54,9 @@ class BlockController extends AbstractController
      * @return JsonResponse
      */
     #[Route('/block/add', methods: ['POST'])]
-    public function blockAdd(Request $request, BlockRepository $blockRepository): JsonResponse
+    public function blockAdd(BlockRepository $blockRepository): JsonResponse
     {
         $blockRepository->add($request);
-        if (!$block) {
-            throw $this->createNotFoundException();
-        }
         return $this->json($block->getId());
     }
 
