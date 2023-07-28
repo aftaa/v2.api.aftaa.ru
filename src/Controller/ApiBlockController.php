@@ -4,10 +4,9 @@
 namespace App\Controller;
 
 use App\Entity\Block;
+use App\Repository\BlockRepository;
 use App\Service\CorsPolicy;
 use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -16,13 +15,13 @@ use Doctrine\Persistence\ManagerRegistry;
 class ApiBlockController extends BaseController
 {
     /**
-     * @param ManagerRegistry $doctrine
+     * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/blocks')]
-    public function blocksList(ManagerRegistry $doctrine): JsonResponse
+    public function blocksList(BlockRepository $blockRepository): JsonResponse
     {
-        $blocks = $doctrine->getRepository(Block::class)->getSelectList();
+        $blocks = $blockRepository->getSelectList();
         return $this->jsonAndHeader($blocks);
     }
 
@@ -52,13 +51,13 @@ class ApiBlockController extends BaseController
 
     /**
      * @param Request $request
-     * @param ManagerRegistry $doctrine
+     * @param BlockRepository $blockRepository
      * @return JsonResponse
      */
     #[Route('/block/add', methods: ['POST'])]
-    public function blockAdd(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function blockAdd(Request $request, BlockRepository $blockRepository): JsonResponse
     {
-        $block = $doctrine->getRepository(Block::class)->add($request);
+        $blockRepository->add($request);
         if (!$block) {
             throw $this->createNotFoundException();
         }
@@ -81,16 +80,12 @@ class ApiBlockController extends BaseController
     }
 
     /**
-     * @param int $id
-     * @param ManagerRegistry $doctrine
+     * @param Block $block
      * @return JsonResponse
      */
     #[Route('/block/{id}')]
-    public function blockLoad(int $id, ManagerRegistry $doctrine): JsonResponse
+    public function load(Block $block): JsonResponse
     {
-        $block = $doctrine->getRepository(Block::class)->load($id);
-        if (!$block) throw $this->createNotFoundException();
-        return $this->jsonAndHeader($block);
-
+        return $this->json($block);
     }
 }
