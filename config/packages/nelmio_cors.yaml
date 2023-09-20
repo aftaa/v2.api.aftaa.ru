@@ -8,4 +8,4 @@ nelmio_cors:
 #        max_age: 3600
     paths:
         '^/':
-            allow_origin: ['https://aftaa.ru']
+            allow_origin: ['https://aftaa.ru', 'http://aftaa']
